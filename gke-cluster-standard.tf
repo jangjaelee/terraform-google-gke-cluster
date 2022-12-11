@@ -4,18 +4,11 @@ data "google_container_engine_versions" "this" {
   version_prefix = "1.24."
 }
 
-output "stable_channel_version" {
-  #value = data.google_container_engine_versions.this.release_channel_default_version["STABLE"]
-  #value = data.google_container_engine_versions.this.valid_master_versions
-  value = data.google_container_engine_versions.this.default_cluster_version
-}
-
-
-resource "google_container_cluster" "this" {
+resource "google_container_cluster" "gke_cluster_standard" {
   name                     = var.cluster_name
   location                 = var.cluster_location_type
   node_locations           = var.node_locations
-  network                  = var.vpc_network
+  network                  = "projects/${var.project_id}/global/networks/${var.vpc_network}"
   subnetwork               = var.subnetwork
   
   ip_allocation_policy {
