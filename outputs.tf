@@ -5,5 +5,5 @@ output "stable_channel_version" {
 }
 
 output "datapath_provider" {
-  value = google_container_cluster.this.datapath_provider
+  value = google_container_cluster.gke_cluster_standard.datapath_provider
 }
