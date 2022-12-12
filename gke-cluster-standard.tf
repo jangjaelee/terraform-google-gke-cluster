@@ -68,7 +68,19 @@ resource "google_container_cluster" "gke_cluster_standard" {
       disabled = !var.http_load_balancing
     }
 
+    dns_cache_config {
+      enabled = var.dns_cache_config
+    }
 
+  }
+
+  dynamic "dns_config" {
+    for_each = var.cluster_dns_provider == "CLOUD_DNS" ? [1] : []
+    content {
+      cluster_dns        = var.cluster_dns_provider
+      cluster_dns_scope  = var.cluster_dns_scope
+      cluster_dns_domain = var.cluster_dns_domain
+    }
   }
 
   dynamic "master_authorized_networks_config" {
@@ -84,9 +96,32 @@ resource "google_container_cluster" "gke_cluster_standard" {
     }
   }
 
+
+####################
+# Automation
+####################
+
+
+
+####################
+# Security
+####################
   binary_authorization {
     evaluation_mode = "DISABLED"
   }
+
+
+####################
+# Metadata
+####################
+
+
+####################
+# Features
+####################
+
+
+
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
@@ -98,9 +133,9 @@ resource "google_container_cluster" "gke_cluster_standard" {
   #   ignore_changes = [node_pool, initial_node_count, resource_labels["asmv"], resource_labels["mesh_id"]]
   # }
 
-  timeouts {
-    create = lookup(var.timeouts, "create", "60m")
-    update = lookup(var.timeouts, "update", "60m")
-    delete = lookup(var.timeouts, "delete", "60m")
-  }
+  # timeouts {
+  #   create = lookup(var.timeouts, "create", "60m")
+  #   update = lookup(var.timeouts, "update", "60m")
+  #   delete = lookup(var.timeouts, "delete", "60m")
+  # }
 }

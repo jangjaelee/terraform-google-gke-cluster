@@ -116,7 +116,52 @@ variable "http_load_balancing" {
   type        = bool
 }
 
+variable "cluster_dns_provider" {
+  type        = string
+  description = "Which in-cluster DNS provider should be used. PROVIDER_UNSPECIFIED (default) or PLATFORM_DEFAULT or CLOUD_DNS."
+  default     = "PROVIDER_UNSPECIFIED"
+}
+
+variable "cluster_dns_scope" {
+  type        = string
+  description = "The scope of access to cluster DNS records. DNS_SCOPE_UNSPECIFIED (default) or CLUSTER_SCOPE or VPC_SCOPE. "
+  default     = "DNS_SCOPE_UNSPECIFIED"
+}
+
+variable "cluster_dns_domain" {
+  type        = string
+  description = "The suffix used for all cluster service records."
+  default     = ""
+}
+
+variable "dns_cache_config" {
+  description = "The status of the NodeLocal DNSCache addon. It is disabled by default. Set enabled = true to enable."
+  type        = bool
+}
+
 variable "master_authorized_networks" {
   description = "List of master authorized networks. If none are provided, disallow external access (except the cluster node IPs, which GKE automatically whitelists)."
   type        = list(object({ cidr_block = string, display_name = string }))
 }
+
+
+####################
+# Automation
+####################
+
+
+
+####################
+# Security
+####################
+
+
+
+####################
+# Metadata
+####################
+
+
+####################
+# Features
+####################
