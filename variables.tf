@@ -111,11 +111,6 @@ variable "network_policy" {
   type        = bool
 }
 
-variable "http_load_balancing" {
-  description = "The status of the HTTP (L7) load balancing controller addon, which makes it easy to set up HTTP load balancers for services in a cluster."
-  type        = bool
-}
-
 variable "cluster_dns_provider" {
   type        = string
   description = "Which in-cluster DNS provider should be used. PROVIDER_UNSPECIFIED (default) or PLATFORM_DEFAULT or CLOUD_DNS."
@@ -134,11 +129,6 @@ variable "cluster_dns_domain" {
   default     = ""
 }
 
-variable "dns_cache_config" {
-  description = "The status of the NodeLocal DNSCache addon. It is disabled by default. Set enabled = true to enable."
-  type        = bool
-}
-
 variable "master_authorized_networks" {
   description = "List of master authorized networks. If none are provided, disallow external access (except the cluster node IPs, which GKE automatically whitelists)."
   type        = list(object({ cidr_block = string, display_name = string }))
@@ -148,7 +138,54 @@ variable "master_authorized_networks" {
 ####################
 # Automation
 ####################
+variable "maintenance_policy" {
+  description = "The maintenance policy to use for the cluster. `enabled` or `disabled`."
+  type        = string
+}
 
+variable "maintenance_start_time" {
+  description = "Time window specified for daily or recurring maintenance operations in RFC3339 format"  
+  type        = string
+}
+
+variable "maintenance_end_time" {
+  description = "Time window specified for recurring maintenance operations in RFC3339 format"
+  type        = string
+}
+
+variable "maintenance_exclusions" {
+  description = "List of maintenance exclusions. A cluster can have up to three"
+  type        = list(object({ name = string, start_time = string, end_time = string, exclusion_scope = string }))
+}
+
+variable "maintenance_recurrence" {
+  description = "Frequency of the recurring maintenance window in RFC5545 format."
+  type        = string
+}
+
+variable "vertical_pod_autoscaling" {
+  description = "Vertical Pod Autoscaling automatically adjusts the resources of pods controlled by it"
+  type        = bool
+}
+
+
+####################
+# addons_config
+####################
+variable "http_load_balancing" {
+  description = "The status of the HTTP (L7) load balancing controller addon, which makes it easy to set up HTTP load balancers for services in a cluster."
+  type        = bool
+}
+
+variable "dns_cache_config" {
+  description = "The status of the NodeLocal DNSCache addon. It is disabled by default. Set enabled = true to enable."
+  type        = bool
+}
+
+variable "horizontal_pod_autoscaling" {
+  description = "The status of the Horizontal Pod Autoscaling addon, which increases or decreases the number of replica pods a replication controller has based on the resource usage of the existing pods."
+  type        = bool
+}
 
 
 ####################

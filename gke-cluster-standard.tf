@@ -14,7 +14,6 @@ resource "google_container_cluster" "gke_cluster_standard" {
   node_locations       = var.node_locations
 
   #min_master_version   = data.google_container_engine_versions.this.default_cluster_version
-  #min_master_version   = "1.24.5-gke.600"
   min_master_version   = var.kubernetes_version  
   release_channel {
     channel = var.release_channel
@@ -51,28 +50,11 @@ resource "google_container_cluster" "gke_cluster_standard" {
   default_max_pods_per_node = var.max_pods_per_node
 
   network_policy {
-    # enabled  = var.network_policy ? true : false
-    # provider = var.network_policy ? "CALICO" : "PROVIDER_UNSPECIFIED"
     enabled  = local.gke_cni_calico ? true : false
     provider = local.gke_cni_calico ? "CALICO" : "PROVIDER_UNSPECIFIED"
   }
 
   datapath_provider = local.gke_cni_cilium ? "ADVANCED_DATAPATH" : "DATAPATH_PROVIDER_UNSPECIFIED"
-
-  addons_config {
-    network_policy_config {
-      disabled = !var.network_policy
-    }
-
-    http_load_balancing {
-      disabled = !var.http_load_balancing
-    }
-
-    dns_cache_config {
-      enabled = var.dns_cache_config
-    }
-
-  }
 
   dynamic "dns_config" {
     for_each = var.cluster_dns_provider == "CLOUD_DNS" ? [1] : []
@@ -98,10 +80,70 @@ resource "google_container_cluster" "gke_cluster_standard" {
 
 
 ####################
+# addons_config
+####################
+  addons_config {
+    network_policy_config {
+      disabled = !var.network_policy
+    }
+
+    http_load_balancing {
+      disabled = !var.http_load_balancing
+    }
+
+    dns_cache_config {
+      enabled = var.dns_cache_config
+    }
+
+    horizontal_pod_autoscaling {
+      disabled = !var.horizontal_pod_autoscaling
+    }
+  }
+
+
+####################
 # Automation
 ####################
+  dynamic maintenance_policy {
+    for_each = var.maintenance_policy == "enabled" ? [1] : []
+    content {
+      dynamic "recurring_window" {
+        for_each = local.cluster_maintenance_window_is_recurring
+        content {
+          start_time = var.maintenance_start_time
+          end_time   = var.maintenance_end_time
+          recurrence = var.maintenance_recurrence
+        }
+      }
 
+      dynamic "daily_maintenance_window" {
+        for_each = local.cluster_maintenance_window_is_daily
+        content {
+          start_time = var.maintenance_start_time
+        }
+      }
 
+      dynamic "maintenance_exclusion" {
+        for_each = var.maintenance_exclusions
+        content {
+          exclusion_name = maintenance_exclusion.value.name
+          start_time     = maintenance_exclusion.value.start_time
+          end_time       = maintenance_exclusion.value.end_time
+
+          dynamic "exclusion_options" {
+            for_each = maintenance_exclusion.value.exclusion_scope == null ? [] : [maintenance_exclusion.value.exclusion_scope]
+            content {
+              scope = exclusion_options.value
+            }
+          }
+        }
+      }
+    }
+  }
+
+  vertical_pod_autoscaling {
+    enabled = var.vertical_pod_autoscaling
+  }
 
 ####################
 # Security
