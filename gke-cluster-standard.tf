@@ -107,7 +107,7 @@ resource "google_container_cluster" "gke_cluster_standard" {
 # Security
 ####################
   binary_authorization {
-    evaluation_mode = "DISABLED"
+    evaluation_mode = var.binary_authorization
   }
 
 

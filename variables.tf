@@ -154,7 +154,10 @@ variable "master_authorized_networks" {
 ####################
 # Security
 ####################
-
+variable "binary_authorization" {
+  description = "Configuration options for the Binary Authorization feature. If unspecified, defaults to DISABLED."
+  type        = string
+}
 
 
 ####################
