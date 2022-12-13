@@ -6,5 +6,10 @@ terraform {
       source = "hashicorp/google"
       version = "4.46.0"
     }
+
+    null = {
+      source = "hashicorp/null"
+      version = "3.2.1"
+    }
   }
 }

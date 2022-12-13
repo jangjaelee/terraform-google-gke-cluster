@@ -1,4 +1,7 @@
 locals {
+  module_name    = "terraform-google-gke-cluster-standard"
+  module_version = "v0.0.1"
+
   # The desired configuration options for master authorized networks
   master_authorized_networks_config = length(var.master_authorized_networks) == 0 ? [] : [{
     cidr_blocks : var.master_authorized_networks

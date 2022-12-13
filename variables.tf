@@ -8,6 +8,11 @@ variable "region" {
     type        = string
 }
 
+variable "labels" {
+  description = "labels"
+  type        = map(string)
+}
+
 
 ####################
 # Cluster basics

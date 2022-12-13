@@ -4,10 +4,19 @@
 #   version_prefix = var.kubernetes_version
 # }
 
+resource "null_resource" "validate_module_name" {
+  count = local.module_name == var.labels["TerraformModuleName"] ? 0 : "Please check that you are using the Terraform module"
+}
+
+resource "null_resource" "validate_module_version" {
+  count = local.module_version == var.labels["TerraformModuleVersion"] ? 0 : "Please check that you are using the Terraform module"
+}
+
 resource "google_container_cluster" "gke_cluster_standard" {
 ####################
 # Cluster basics
 ####################
+  project              = var.project_id
   name                 = var.cluster_name
   description          = var.cluster_description
   location             = var.cluster_location_type
@@ -57,7 +66,7 @@ resource "google_container_cluster" "gke_cluster_standard" {
   datapath_provider = local.gke_cni_cilium ? "ADVANCED_DATAPATH" : "DATAPATH_PROVIDER_UNSPECIFIED"
 
   enable_intranode_visibility = var.enable_intranode_visibility
-  
+
   enable_l4_ilb_subsetting = var.enable_l4_ilb_subsetting
 
   dynamic "dns_config" {
