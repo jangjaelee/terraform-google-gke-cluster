@@ -56,6 +56,10 @@ resource "google_container_cluster" "gke_cluster_standard" {
 
   datapath_provider = local.gke_cni_cilium ? "ADVANCED_DATAPATH" : "DATAPATH_PROVIDER_UNSPECIFIED"
 
+  enable_intranode_visibility = var.enable_intranode_visibility
+  
+  enable_l4_ilb_subsetting = var.enable_l4_ilb_subsetting
+
   dynamic "dns_config" {
     for_each = var.cluster_dns_provider == "CLOUD_DNS" ? [1] : []
     content {

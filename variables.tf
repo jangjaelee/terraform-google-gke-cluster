@@ -101,13 +101,18 @@ variable "gke_cni" {
   type        = string
 }
 
-# variable "datapath_provider" {
-#   description = "The desired datapath provider for this cluster. By default, `DATAPATH_PROVIDER_UNSPECIFIED` enables the IPTables-based kube-proxy implementation. `ADVANCED_DATAPATH` enables Dataplane-V2 feature."
-#   type        = bool
-# }
-
 variable "network_policy" {
   description = "The Node Pool use calico CNI."
+  type        = bool
+}
+
+variable "enable_intranode_visibility" {
+  description = "Whether Intra-node visibility is enabled for this cluster. This makes same node pod to pod traffic visible for VPC network."
+  type        = bool
+}
+
+variable "enable_l4_ilb_subsetting" {
+  description = "Enable L4 ILB Subsetting on the cluster."
   type        = bool
 }
 
