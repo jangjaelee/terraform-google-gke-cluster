@@ -20,4 +20,13 @@ locals {
   cluster_maintenance_window_is_recurring = var.maintenance_recurrence != "" && var.maintenance_end_time != "" ? [1] : []
   cluster_maintenance_window_is_daily     = length(local.cluster_maintenance_window_is_recurring) > 0 ? [] : [1]
 
+  autoscaling_resource_limits = var.cluster_autoscaling.enabled ? concat([{
+    resource_type = "cpu"
+    minimum       = var.cluster_autoscaling.min_cpu_cores
+    maximum       = var.cluster_autoscaling.max_cpu_cores
+    }, {
+    resource_type = "memory"
+    minimum       = var.cluster_autoscaling.min_memory_gb
+    maximum       = var.cluster_autoscaling.max_memory_gb
+  }], var.cluster_autoscaling.gpu_resources) : []
 }

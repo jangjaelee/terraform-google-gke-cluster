@@ -158,6 +158,29 @@ resource "google_container_cluster" "gke_cluster_standard" {
     enabled = var.vertical_pod_autoscaling
   }
 
+  cluster_autoscaling {
+    enabled = var.cluster_autoscaling.enabled
+    # dynamic "auto_provisioning_defaults" {
+    #   for_each = var.cluster_autoscaling.enabled ? [1] : []
+
+    #   content {
+    #     service_account  = local.service_account
+    #     oauth_scopes     = local.node_pools_oauth_scopes["all"]
+    #     min_cpu_platform = lookup(var.node_pools[0], "min_cpu_platform", "")
+    #   }
+    # }
+    #autoscaling_profile = var.cluster_autoscaling.autoscaling_profile != null ? var.cluster_autoscaling.autoscaling_profile : "BALANCED"
+    dynamic "resource_limits" {
+      for_each = local.autoscaling_resource_limits
+      content {
+        resource_type = lookup(resource_limits.value, "resource_type")
+        minimum       = lookup(resource_limits.value, "minimum")
+        maximum       = lookup(resource_limits.value, "maximum")
+      }
+    }
+  }
+
+
 ####################
 # Security
 ####################
