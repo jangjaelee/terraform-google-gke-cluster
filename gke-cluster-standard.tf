@@ -4,18 +4,11 @@
 #   version_prefix = var.kubernetes_version
 # }
 
-resource "null_resource" "validate_module_name" {
-  count = local.module_name == var.labels["TerraformModuleName"] ? 0 : "Please check that you are using the Terraform module"
-}
-
-resource "null_resource" "validate_module_version" {
-  count = local.module_version == var.labels["TerraformModuleVersion"] ? 0 : "Please check that you are using the Terraform module"
-}
 
 resource "google_container_cluster" "gke_cluster_standard" {
 ####################
 # Cluster basics
-####################
+####################s
   project              = var.project_id
   name                 = var.cluster_name
   description          = var.cluster_description
@@ -154,12 +147,20 @@ resource "google_container_cluster" "gke_cluster_standard" {
     }
   }
 
+  #--> this can use in google-beta provider
+  # node_pool_auto_config {
+  #   network_tags {
+  #     tags = ["ssh-bastion"]
+  #   }
+  # }
+
   vertical_pod_autoscaling {
     enabled = var.vertical_pod_autoscaling
   }
 
   cluster_autoscaling {
     enabled = var.cluster_autoscaling.enabled
+
     # dynamic "auto_provisioning_defaults" {
     #   for_each = var.cluster_autoscaling.enabled ? [1] : []
 
@@ -169,7 +170,10 @@ resource "google_container_cluster" "gke_cluster_standard" {
     #     min_cpu_platform = lookup(var.node_pools[0], "min_cpu_platform", "")
     #   }
     # }
+
+    #--> this can use in google-beta provider
     #autoscaling_profile = var.cluster_autoscaling.autoscaling_profile != null ? var.cluster_autoscaling.autoscaling_profile : "BALANCED"
+
     dynamic "resource_limits" {
       for_each = local.autoscaling_resource_limits
       content {
