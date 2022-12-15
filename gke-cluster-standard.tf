@@ -245,7 +245,6 @@ resource "google_container_cluster" "gke_cluster_standard" {
 ####################
 # Features
 ####################
-  logging_service    = var.logging_service
    dynamic "logging_config" {
     for_each = length(var.logging_enabled_components) > 0 ? [1] : []
 
@@ -254,7 +253,6 @@ resource "google_container_cluster" "gke_cluster_standard" {
     }
   }
 
-  monitoring_service = var.monitoring_service
   dynamic "monitoring_config" {
     for_each = length(var.monitoring_enabled_components) > 0 || var.monitoring_enable_managed_prometheus ? [1] : []
 

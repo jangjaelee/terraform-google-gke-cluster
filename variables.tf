@@ -8,6 +8,11 @@ variable "region" {
     type        = string
 }
 
+variable "validate_labels" {
+  description = "validate labels"
+  type = map(string)
+}
+
 variable "resource_labels" {
   description = "The GCE resource labels (a map of key/value pairs) to be applied to the cluster"
   type        = map(string)
@@ -268,19 +273,9 @@ variable "authenticator_security_group" {
 ####################
 # Features
 ####################
-variable "logging_service" {
-  description = "The logging service that the cluster should write logs to. Available options include logging.googleapis.com, logging.googleapis.com/kubernetes (beta), and none"
-  type        = string
-}
-
 variable "logging_enabled_components" {
   type        = list(string)
   description = "List of services to monitor: SYSTEM_COMPONENTS, WORKLOADS. Empty list is default GKE configuration."
-}
-
-variable "monitoring_service" {
-  description = "The monitoring service that the cluster should write metrics to. Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API. VM metrics will be collected by Google Compute Engine regardless of this setting Available options include monitoring.googleapis.com, monitoring.googleapis.com/kubernetes (beta) and none"  
-  type        = string
 }
 
 variable "monitoring_enabled_components" {
