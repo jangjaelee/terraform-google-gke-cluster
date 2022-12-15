@@ -1,10 +1,3 @@
-# data "google_container_engine_versions" "this" {
-#   project        = var.project_id
-#   location       = var.cluster_location_type
-#   version_prefix = var.kubernetes_version
-# }
-
-
 resource "google_container_cluster" "gke_cluster_standard" {
 ####################
 # Cluster basics
@@ -81,6 +74,13 @@ resource "google_container_cluster" "gke_cluster_standard" {
           display_name = lookup(cidr_blocks.value, "display_name", "")
         }
       }
+    }
+  }
+
+  dynamic "service_external_ips_config" {
+    for_each = var.service_external_ips ? [1] : []
+    content {
+      enabled = var.service_external_ips
     }
   }
 
@@ -192,11 +192,44 @@ resource "google_container_cluster" "gke_cluster_standard" {
     evaluation_mode = var.binary_authorization
   }
 
+  enable_shielded_nodes = var.enable_shielded_nodes
+
+  dynamic "confidential_nodes" {
+    for_each = local.confidential_node_config
+    content {
+      enabled = confidential_nodes.value.enabled
+    }
+  }
+
+  dynamic "database_encryption" {
+    for_each = var.database_encryption
+
+    content {
+      key_name = database_encryption.value.key_name
+      state    = database_encryption.value.state
+    }
+  }
+
+  dynamic "workload_identity_config" {
+    for_each = local.cluster_workload_identity_config
+
+    content {
+      workload_pool = workload_identity_config.value.workload_pool
+    }
+  }
+
+  dynamic "authenticator_groups_config" {
+    for_each = local.cluster_authenticator_security_group
+    content {
+      security_group = authenticator_groups_config.value.security_group
+    }
+  }
+
 
 ####################
 # Metadata
 ####################
-
+  resource_labels = var.cluster_resource_labels
 
 ####################
 # Features

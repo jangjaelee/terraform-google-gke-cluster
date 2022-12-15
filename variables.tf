@@ -144,6 +144,11 @@ variable "master_authorized_networks" {
   type        = list(object({ cidr_block = string, display_name = string }))
 }
 
+variable "service_external_ips" {
+  description = "Whether external ips specified by a service will be allowed in this cluster"
+  type        = bool
+}
+
 
 ####################
 # Automation
@@ -219,10 +224,39 @@ variable "binary_authorization" {
   type        = string
 }
 
+variable "enable_shielded_nodes" {
+  description = "Enable Shielded Nodes features on all nodes in this cluster."
+  type        = bool
+}
+
+variable "enable_confidential_nodes" {
+  description = "An optional flag to enable confidential node config."
+  type        = bool
+}
+
+variable "database_encryption" {
+  description = "Application-layer Secrets Encryption settings. The object format is {state = string, key_name = string}. Valid values of state are: \"ENCRYPTED\"; \"DECRYPTED\". key_name is the name of a CloudKMS key."
+  type        = list(object({ state = string, key_name = string }))
+}
+
+variable "identity_namespace" {
+  description = "The workload pool to attach all Kubernetes service accounts to. (Default value of `enabled` automatically sets project-based pool `[project_id].svc.id.goog`)"
+  type        = string
+}
+
+variable "authenticator_security_group" {
+  description = "The name of the RBAC security group for use with Google security groups in Kubernetes RBAC. Group name must be in format gke-security-groups@yourdomain.com"
+  type        = string
+}
+
 
 ####################
 # Metadata
 ####################
+variable "cluster_resource_labels" {
+  description = "The GCE resource labels (a map of key/value pairs) to be applied to the cluster"
+  type        = map(string)
+}
 
 
 ####################
