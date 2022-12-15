@@ -8,8 +8,13 @@ variable "region" {
     type        = string
 }
 
-variable "labels" {
-  description = "labels"
+variable "resource_labels" {
+  description = "The GCE resource labels (a map of key/value pairs) to be applied to the cluster"
+  type        = map(string)
+}
+
+variable "timeouts" {
+  description = "Timeout for cluster operations."
   type        = map(string)
 }
 
@@ -215,6 +220,16 @@ variable "horizontal_pod_autoscaling" {
   type        = bool
 }
 
+variable "gce_persistent_disk_csi_driver_config" {
+  description = "Whether this cluster should enable the Google Compute Engine Persistent Disk Container Storage Interface (CSI) Driver."
+  type        = bool
+}
+
+variable "gcp_filestore_csi_driver_config" {
+  description = "The status of the Filestore CSI driver addon, which allows the usage of filestore instance as volumes."
+  type        = bool
+}
+
 
 ####################
 # Security
@@ -251,14 +266,49 @@ variable "authenticator_security_group" {
 
 
 ####################
-# Metadata
-####################
-variable "cluster_resource_labels" {
-  description = "The GCE resource labels (a map of key/value pairs) to be applied to the cluster"
-  type        = map(string)
-}
-
-
-####################
 # Features
 ####################
+variable "logging_service" {
+  description = "The logging service that the cluster should write logs to. Available options include logging.googleapis.com, logging.googleapis.com/kubernetes (beta), and none"
+  type        = string
+}
+
+variable "logging_enabled_components" {
+  type        = list(string)
+  description = "List of services to monitor: SYSTEM_COMPONENTS, WORKLOADS. Empty list is default GKE configuration."
+}
+
+variable "monitoring_service" {
+  description = "The monitoring service that the cluster should write metrics to. Automatically send metrics from pods in the cluster to the Google Cloud Monitoring API. VM metrics will be collected by Google Compute Engine regardless of this setting Available options include monitoring.googleapis.com, monitoring.googleapis.com/kubernetes (beta) and none"  
+  type        = string
+}
+
+variable "monitoring_enabled_components" {
+  type        = list(string)
+  description = "List of services to monitor: SYSTEM_COMPONENTS, WORKLOADS (provider version >= 3.89.0). Empty list is default GKE configuration."
+}
+
+variable "monitoring_enable_managed_prometheus" {
+  description = "Configuration for Managed Service for Prometheus. Whether or not the managed collection is enabled."  
+  type        = bool
+}
+
+variable "enable_cost_allocation" {
+  description = "Enables Cost Allocation Feature and the cluster name and namespace of your GKE workloads appear in the labels field of the billing export to BigQuery"
+  type        = bool
+}
+
+variable "resource_usage_export_dataset_id" {
+  description = "The ID of a BigQuery Dataset for using BigQuery as the destination of resource usage export."
+  type        = string
+}
+
+variable "enable_network_egress_export" {
+  description = "Whether to enable network egress metering for this cluster. If enabled, a daemonset will be created in the cluster to meter network egress traffic."
+  type        = bool
+}
+
+variable "enable_resource_consumption_export" {
+  description = "Whether to enable resource consumption metering on this cluster. When enabled, a table will be created in the resource export BigQuery dataset to store resource consumption data. The resulting table can be joined with the resource usage table or with BigQuery billing export."
+  type        = bool
+}

@@ -14,6 +14,8 @@ resource "google_container_cluster" "gke_cluster_standard" {
     channel = var.release_channel
   }
 
+  resource_labels = var.resource_labels
+
 
 ####################
 # Networking
@@ -103,6 +105,20 @@ resource "google_container_cluster" "gke_cluster_standard" {
 
     horizontal_pod_autoscaling {
       disabled = !var.horizontal_pod_autoscaling
+    }
+  
+    dynamic "gce_persistent_disk_csi_driver_config" {
+      for_each = var.gce_persistent_disk_csi_driver_config ? [1] : []
+      content {
+        enabled = var.gce_persistent_disk_csi_driver_config
+      }
+    }
+
+    dynamic "gcp_filestore_csi_driver_config" {
+      for_each = var.gcp_filestore_csi_driver_config ? [1] : []
+      content {
+        enabled = var.gcp_filestore_csi_driver_config
+      }
     }
   }
 
@@ -227,15 +243,56 @@ resource "google_container_cluster" "gke_cluster_standard" {
 
 
 ####################
-# Metadata
-####################
-  resource_labels = var.cluster_resource_labels
-
-####################
 # Features
 ####################
+  logging_service    = var.logging_service
+   dynamic "logging_config" {
+    for_each = length(var.logging_enabled_components) > 0 ? [1] : []
 
+    content {
+      enable_components = var.logging_enabled_components
+    }
+  }
 
+  monitoring_service = var.monitoring_service
+  dynamic "monitoring_config" {
+    for_each = length(var.monitoring_enabled_components) > 0 || var.monitoring_enable_managed_prometheus ? [1] : []
+
+    content {
+      enable_components = length(var.monitoring_enabled_components) > 0 ? var.monitoring_enabled_components : null
+
+      dynamic "managed_prometheus" {
+        for_each = var.monitoring_enable_managed_prometheus ? [1] : []
+
+        content {
+          enabled = var.monitoring_enable_managed_prometheus
+        }
+      }
+    }
+  }
+
+  dynamic "cost_management_config" {
+    for_each = var.enable_cost_allocation ? [1] : []
+    content {
+      enabled = var.enable_cost_allocation
+    }
+  }
+
+  dynamic "resource_usage_export_config" {
+    for_each = var.resource_usage_export_dataset_id != "" ? [{
+      enable_network_egress_metering       = var.enable_network_egress_export
+      enable_resource_consumption_metering = var.enable_resource_consumption_export
+      dataset_id                           = var.resource_usage_export_dataset_id
+    }] : []
+
+    content {
+      enable_network_egress_metering       = resource_usage_export_config.value.enable_network_egress_metering
+      enable_resource_consumption_metering = resource_usage_export_config.value.enable_resource_consumption_metering
+      bigquery_destination {
+        dataset_id = resource_usage_export_config.value.dataset_id
+      }
+    }
+  }
 
 
   # We can't create a cluster with no node pool defined, but we want to only use
@@ -248,9 +305,9 @@ resource "google_container_cluster" "gke_cluster_standard" {
   #   ignore_changes = [node_pool, initial_node_count, resource_labels["asmv"], resource_labels["mesh_id"]]
   # }
 
-  # timeouts {
-  #   create = lookup(var.timeouts, "create", "60m")
-  #   update = lookup(var.timeouts, "update", "60m")
-  #   delete = lookup(var.timeouts, "delete", "60m")
-  # }
+  timeouts {
+    create = lookup(var.timeouts, "create", "60m")
+    update = lookup(var.timeouts, "update", "60m")
+    delete = lookup(var.timeouts, "delete", "60m")
+  }
 }
